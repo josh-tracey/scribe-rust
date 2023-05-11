@@ -1,9 +1,10 @@
 [package]
-name = "scribe"
+name = "scribe-rust"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Basic Logger for Rust"
+authors = ["joshua.tracey08@gmail.com"]
+description = "Port of Scribe Logger to Rust"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
