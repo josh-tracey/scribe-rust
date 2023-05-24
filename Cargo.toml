@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 authors = ["joshua.tracey08@gmail.com"]
-description = "Port of Scribe Logger to Rust"
+description = "Scribe-rust is a straightforward and color-coded logging library for Rust applications"
+repository = "https://github.com/josh-tracey/scribe-rust"
+keywords = ["logging", "logger", "scribe", "simple", "color-coded"]
+
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
