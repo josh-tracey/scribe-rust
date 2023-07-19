@@ -9,6 +9,14 @@ const FG_GRAY: &str = "\x1b[90m";
 //const FG_WHITE: &str = "\x1b[37m";
 const FG_RESET: &str = "\x1b[0m";
 
+pub enum Color {
+    Red,
+    Yellow,
+    Blue,
+    Green,
+    Gray,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Level {
     Trace,
@@ -100,4 +108,20 @@ impl Logger {
     pub fn error(&self, message: &str) {
         self.log(Level::Error, message);
     }
+}
+
+pub fn log(color: Color, tag: &str, message: &str) {
+    println!(
+        "[{}{}{}] {}",
+        match color {
+            Color::Red => FG_RED,
+            Color::Yellow => FG_YELLOW,
+            Color::Blue => FG_BLUE,
+            Color::Green => FG_GREEN,
+            Color::Gray => FG_GRAY,
+        },
+        tag,
+        FG_RESET,
+        message
+    );
 }
