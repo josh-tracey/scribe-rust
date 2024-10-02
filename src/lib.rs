@@ -42,7 +42,7 @@ impl std::str::FromStr for Level {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
+        match s.to_uppercase().as_str() {
             "TRACE" => Ok(Level::Trace),
             "DEBUG" => Ok(Level::Debug),
             "INFO" => Ok(Level::Info),
