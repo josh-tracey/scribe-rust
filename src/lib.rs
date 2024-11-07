@@ -173,17 +173,19 @@ where
         };
 
         if level >= self.logger.level {
+            // Initialize the visitor to capture event fields
             let mut visitor = FieldVisitor::new();
             event.record(&mut visitor);
+
+            // Attempt to retrieve the "message" field
             let message = visitor
                 .fields
                 .get("message")
                 .and_then(|v| v.as_str())
                 .unwrap_or(event.metadata().name());
 
-            let json_fields = json!(visitor.fields);
-            self.logger
-                .log(level, &format!("{} {}", message, json_fields));
+            // Log the message without the JSON fields
+            self.logger.log(level, message);
         }
     }
 }
