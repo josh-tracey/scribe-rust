@@ -1,6 +1,6 @@
 [package]
 name = "scribe-rust"
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
 license = "MIT"
 authors = ["joshua.tracey08@gmail.com"]
@@ -9,7 +9,10 @@ repository = "https://github.com/josh-tracey/scribe-rust"
 keywords = ["logging", "logger", "scribe", "simple", "color-coded"]
 
 
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde = "1.0.214"
+serde_json = "1.0.132"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"

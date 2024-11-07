@@ -1,12 +1,12 @@
 use std::sync::Arc;
+use tracing::{Event, Level as TracingLevel, Subscriber};
+use tracing_subscriber::{layer::Context, Layer};
 
 const FG_RED: &str = "\x1b[31m";
 const FG_YELLOW: &str = "\x1b[33m";
 const FG_BLUE: &str = "\x1b[34m";
 const FG_GREEN: &str = "\x1b[32m";
-//const FG_LIGHT_GREEN: &str = "\x1b[92m";
 const FG_GRAY: &str = "\x1b[90m";
-//const FG_WHITE: &str = "\x1b[37m";
 const FG_RESET: &str = "\x1b[0m";
 
 pub enum Color {
@@ -110,18 +110,80 @@ impl Logger {
     }
 }
 
-pub fn log(color: Color, tag: &str, message: &str) {
-    println!(
-        "[{}{}{}] {}",
-        match color {
-            Color::Red => FG_RED,
-            Color::Yellow => FG_YELLOW,
-            Color::Blue => FG_BLUE,
-            Color::Green => FG_GREEN,
-            Color::Gray => FG_GRAY,
-        },
-        tag,
-        FG_RESET,
-        message
-    );
+use serde_json::{json, Value};
+use std::collections::BTreeMap;
+use tracing::field::{Field, Visit};
+
+struct FieldVisitor {
+    fields: BTreeMap<String, Value>,
+}
+
+impl FieldVisitor {
+    fn new() -> Self {
+        FieldVisitor {
+            fields: BTreeMap::new(),
+        }
+    }
+}
+
+impl Visit for FieldVisitor {
+    fn record_bool(&mut self, field: &Field, value: bool) {
+        self.fields
+            .insert(field.name().to_string(), Value::Bool(value));
+    }
+
+    fn record_i64(&mut self, field: &Field, value: i64) {
+        self.fields
+            .insert(field.name().to_string(), Value::Number(value.into()));
+    }
+
+    fn record_u64(&mut self, field: &Field, value: u64) {
+        self.fields
+            .insert(field.name().to_string(), Value::Number(value.into()));
+    }
+
+    fn record_str(&mut self, field: &Field, value: &str) {
+        self.fields
+            .insert(field.name().to_string(), Value::String(value.to_string()));
+    }
+
+    fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
+        self.fields.insert(
+            field.name().to_string(),
+            Value::String(format!("{:?}", value)),
+        );
+    }
+}
+
+pub struct CustomLoggerLayer {
+    logger: Arc<Logger>,
+}
+
+impl<S> Layer<S> for CustomLoggerLayer
+where
+    S: Subscriber,
+{
+    fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
+        let level = match *event.metadata().level() {
+            TracingLevel::TRACE => Level::Trace,
+            TracingLevel::DEBUG => Level::Debug,
+            TracingLevel::INFO => Level::Info,
+            TracingLevel::WARN => Level::Warn,
+            TracingLevel::ERROR => Level::Error,
+        };
+
+        if level >= self.logger.level {
+            let mut visitor = FieldVisitor::new();
+            event.record(&mut visitor);
+            let message = visitor
+                .fields
+                .get("message")
+                .and_then(|v| v.as_str())
+                .unwrap_or(event.metadata().name());
+
+            let json_fields = json!(visitor.fields);
+            self.logger
+                .log(level, &format!("{} {}", message, json_fields));
+        }
+    }
 }
