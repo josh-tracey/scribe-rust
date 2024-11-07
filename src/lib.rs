@@ -156,7 +156,7 @@ impl Visit for FieldVisitor {
 }
 
 pub struct CustomLoggerLayer {
-    logger: Arc<Logger>,
+    pub logger: Arc<Logger>,
 }
 
 impl<S> Layer<S> for CustomLoggerLayer
